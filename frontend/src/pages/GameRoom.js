@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { useLocation, useParams, useNavigate } from "react-router-dom";
 import socket from "../socket";
@@ -26,7 +27,7 @@ export default function GameRoom() {
     });
 
     return () => socket.off();
-  }, []);
+  }, [navigate]);
 
   if (!room) return <div>Loading...</div>;
   if (!room.players || !room.players.length) return <div>Loading players...</div>;
@@ -85,7 +86,7 @@ export default function GameRoom() {
   function attack(targetId, x, y) {
     if (!isMyTurn) return;
 
-    // ❌ prevent self attack
+    // Prevent self attack
     if (targetId === socket.id) return;
 
     socket.emit("attack", { roomId: id, targetId, x, y });
@@ -93,8 +94,6 @@ export default function GameRoom() {
 
   const isHost = room.players[0]?.id === socket.id;
   const allReady = room.players.every(p => p.ready && p.color);
-
-  const takenColors = room.players.map(p => p.color);
 
   const alive = room.players.filter(p => p.alive);
   if (alive.length === 1 && room.started) {
@@ -123,7 +122,7 @@ export default function GameRoom() {
           <h3>Select Color</h3>
 
           <div className="color-grid">
-            {["red","blue","green","yellow","purple","orange","cyan","pink"].map(c => {
+            {["red", "blue", "green", "yellow", "purple", "orange", "cyan", "pink"].map(c => {
               const takenBy = room.players.find(p => p.color === c);
               const taken = !!takenBy;
 
@@ -159,7 +158,7 @@ export default function GameRoom() {
           <h3>Place Ships</h3>
 
           <div className="ship-controls">
-            {[3,2,1].map(size => {
+            {[3, 2, 1].map(size => {
               const placed = ships.some(s => s.size === size);
               if (placed) return null;
 
@@ -184,7 +183,6 @@ export default function GameRoom() {
             </button>
           </div>
 
-          {/* ✅ NO CHANGE HERE */}
           <Grid
             ships={ships}
             showShips={true}
@@ -222,7 +220,6 @@ export default function GameRoom() {
             >
               <h4 style={{ color: p.color }}>{p.name}</h4>
 
-              {/* ✅ ONLY CHANGE HERE */}
               <Grid
                 ships={p.ships}
                 showShips={p.id === socket.id}
@@ -230,8 +227,8 @@ export default function GameRoom() {
                   p.ships.filter(s => s.positions.every(pos => pos.hit))
                 }
                 color={p.color}
-                attacks={p.attacks || []} // ⭐ KEY FIX
-                onClick={(x,y)=>attack(p.id,x,y)}
+                attacks={p.attacks || []}
+                onClick={(x, y) => attack(p.id, x, y)}
               />
             </div>
           ))}
